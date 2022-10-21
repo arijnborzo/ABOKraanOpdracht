@@ -7,8 +7,11 @@ public class Movement {
     private double xSpeed;
     private double ySpeed;
 
-    public Movement(int t, Coordinate p1 , Coordinate p2 , double vx , double vy)
+    private int id; //crane id
+
+    public Movement(int id,int t, Coordinate p1 , Coordinate p2 , double vx , double vy)
     {
+        id = this.id;
         startTime = t;
         startLocation = p1;
         endLocation = p2;
@@ -30,7 +33,20 @@ public class Movement {
     }
 
     public boolean collision(Movement k1, Movement k2) {
-        return (Math.min(k1.startLocation.getX(),k1.endLocation.getX()) < Math.max(k2.startLocation.getX(),k2.endLocation.getX())
-                && Math.min(k2.endLocation.getX(),k2.startLocation.getX()) < Math.max(k1.startLocation.getX(),k1.endLocation.getX()));
+        return (Math.min(k1.startLocation.getX(),k1.endLocation.getX()) <= Math.max(k2.startLocation.getX(),k2.endLocation.getX())
+                && Math.min(k2.endLocation.getX(),k2.startLocation.getX()) <= Math.max(k1.startLocation.getX(),k1.endLocation.getX()));
+    }
+
+    public int[] getOverlapArea(Movement m1, Movement m2) {
+
+        int minmax= Math.min(Math.max(m1.startLocation.getX(),m1.endLocation.getX()),Math.max(m2.startLocation.getX(),m2.endLocation.getX()));
+        int maxmin= Math.max(Math.min(m1.startLocation.getX(),m1.endLocation.getX()),Math.min(m2.startLocation.getX(),m2.endLocation.getX()));
+        //int maxmin = Math.max(xMin, g.xMin);
+        //int minmax = Math.min(xMax, g.xMax);
+
+        if (minmax < maxmin)
+            return null;
+        else
+            return new int[]{maxmin, minmax};
     }
 }
