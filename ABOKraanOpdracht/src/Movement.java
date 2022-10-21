@@ -28,4 +28,9 @@ public class Movement {
         if(xTijd > yTijd) return xTijd;
         else return yTijd ;
     }
+
+    public boolean collision(Movement k1, Movement k2) {
+        return (Math.min(k1.startLocation.getX(),k1.endLocation.getX()) < Math.max(k2.startLocation.getX(),k2.endLocation.getX())
+                && Math.min(k2.endLocation.getX(),k2.startLocation.getX()) < Math.max(k1.startLocation.getX(),k1.endLocation.getX()));
+    }
 }
