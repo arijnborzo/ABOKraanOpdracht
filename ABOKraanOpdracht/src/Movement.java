@@ -4,7 +4,6 @@ public class Movement {
     private double endTime;
     private Coordinate startLocation;
     private Coordinate endLocation;
-
     private double xSpeed;
     private double ySpeed;
 
