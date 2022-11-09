@@ -4,6 +4,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -31,5 +32,8 @@ public class Main {
         for(int i = 0; i < move.getOverlapArea(move,move2).length; i++) {
             System.out.print(move.getOverlapArea(move,move2)[i]);
         }
+
+        FileParser test = new FileParser();
+        test.parseFile("/Users/arijnborzo/ABOKraanOpdracht/PortTerminalLogistics/src/main/input.json");
     }
 }
