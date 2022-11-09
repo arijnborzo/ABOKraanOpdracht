@@ -1,6 +1,4 @@
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+package org.example;
 
 public class Container {
 
@@ -8,9 +6,9 @@ public class Container {
     private int Lc;
 
 
-    public Container(String id, String length) {
-        this.id = Integer.parseInt(id);
-        this.Lc = Integer.parseInt(length);
+    public Container(int id, int length) {
+        this.id = id;
+        this.Lc = length;
 
     }
 

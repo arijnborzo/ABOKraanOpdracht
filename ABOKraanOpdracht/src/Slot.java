@@ -1,11 +1,12 @@
-public class Item {
+public class Slot {
     private final int id;
 
-    public Item(int id) {
+    public Slot(int id) {
         this.id = id;
     }
 
     public int getId() {
         return id;
     }
+
 }
