@@ -19,4 +19,11 @@ public class Slot {
         return id;
     }
 
+    @Override
+    public boolean equals(Object obj) {
+        Slot slot = (Slot)obj;
+        return this.getCoordinate().getX() == slot.getCoordinate().getX() && this.Coordinate.getY() == slot.getCoordinate().getY();
+    }
+
+
 }

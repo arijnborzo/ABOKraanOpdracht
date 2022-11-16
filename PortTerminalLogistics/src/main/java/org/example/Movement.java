@@ -1,5 +1,7 @@
 package org.example;
 
+import java.util.HashMap;
+
 public class Movement {
 
     private double startTime;
@@ -49,4 +51,6 @@ public class Movement {
         else
             return new int[]{maxmin, minmax};
     }
+
+
 }

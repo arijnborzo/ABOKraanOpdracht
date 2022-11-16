@@ -5,10 +5,18 @@ public class Container {
     private int id;
     private int Lc;
 
+    private int slotId;
 
-    public Container(int id, int length) {
+    private int slotH;
+
+
+
+    public Container(int id, int length, int slotId, int slotH) {
         this.id = id;
         this.Lc = length;
+        this.slotId = slotId;
+        this.slotH = slotH;
+
 
     }
 
@@ -29,8 +37,22 @@ public class Container {
         return Lc;
     }
 
+
+    public int getSlotId() { return slotId; }
+
+    public void setSlotId(int slotId) {
+        this.slotId = slotId;
+    }
     public void setLc(int lc) {
         this.Lc = lc;
+    }
+
+    public int getSlotH() {
+        return slotH;
+    }
+
+    public void setSlotH(int slotH) {
+        this.slotH = slotH;
     }
 
 

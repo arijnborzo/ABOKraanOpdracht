@@ -33,7 +33,5 @@ public class Main {
             System.out.print(move.getOverlapArea(move,move2)[i]);
         }
 
-        FileParser test = new FileParser();
-        test.parseFile("/Users/arijnborzo/ABOKraanOpdracht/PortTerminalLogistics/src/main/input.json");
     }
 }
