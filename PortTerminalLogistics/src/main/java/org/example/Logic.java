@@ -49,11 +49,11 @@ public class Logic
             Slot initSlotC = slots.get(c.getSlotId());
             if(assignments.containsKey(c.getSlotId()+","+c.getSlotH()+1))
             {
-                move(containers.get(assignments.get(c.getSlotId()+","+c.getSlotH()+1)),getFreeSpot(c,hMax,cranesToUse[0].getxMin(),cranesToUse[0].getxMax()),-1);
+                move(containers.get(assignments.get(c.getSlotId()+","+c.getSlotH()+1)),getFreeSpot(c,hMax,cranesToUse[0].getxMin(),cranesToUse[0].getxMax()-c.getLc()),-1);
             }
             if(getSlotHeight(sId)>=hMax)
             {
-                move(containers.get(assignments.get(sId+","+getSlotHeight(sId))),getFreeSpot(c,hMax,cranesToUse[0].getxMin(),cranesToUse[0].getxMax()),-1);
+                move(containers.get(assignments.get(sId+","+getSlotHeight(sId))),getFreeSpot(c,hMax,cranesToUse[0].getxMin(),cranesToUse[0].getxMax()-c.getLc()),-1);
             }
             movements1.add(moveContainerWithOneCrane(cranesToUse[0],c,sId));
             if(cranesToUse[0].getCraneId() != nextCraneId){
@@ -66,11 +66,11 @@ public class Logic
             Slot initSlotC = slots.get(c.getSlotId());
             if(assignments.containsKey(c.getSlotId()+","+c.getSlotH()+1))
             {
-                move(containers.get(assignments.get(c.getSlotId()+","+c.getSlotH()+1)),getFreeSpot(c,hMax,cranesToUse[1].getxMin(),cranesToUse[1].getxMax()),-1);
+                move(containers.get(assignments.get(c.getSlotId()+","+c.getSlotH()+1)),getFreeSpot(c,hMax,cranesToUse[1].getxMin(),cranesToUse[1].getxMax()-c.getLc()),-1);
             }
             if(getSlotHeight(sId)>=hMax)
             {
-                move(containers.get(assignments.get(sId+","+getSlotHeight(sId))),getFreeSpot(c,hMax,cranesToUse[1].getxMin(),cranesToUse[1].getxMax()),-1);
+                move(containers.get(assignments.get(sId+","+getSlotHeight(sId))),getFreeSpot(c,hMax,cranesToUse[1].getxMin(),cranesToUse[1].getxMax()-c.getLc()),-1);
             }
             int[]overlappingArea = cranesToUse[0].getOverlapArea(cranesToUse[1]);
             int freeSpot = getFreeSpot(c,hMax,overlappingArea[0],overlappingArea[1]);
@@ -119,7 +119,7 @@ public class Logic
         return usableCranes;
     }
     public ArrayList<Movement> move(Container c){
-        int finalFreeSpot = getFreeSpot(c,hTarget,0,lenghtRaster);
+        int finalFreeSpot = getFreeSpot(c,hTarget,0,lenghtRaster-c.getLc());
 
         Cranes[] cranesToUse = getPossibleCrane(slots.get(c.getSlotId()).getCoordinate(), slots.get(finalFreeSpot).getCoordinate());
         ArrayList<Movement> movements1= new ArrayList<>();
@@ -192,7 +192,6 @@ public class Logic
         Coordinate co = new Coordinate(slots.get(c.getSlotId()).getCoordinate().getX(),slots.get(c.getSlotId()).getCoordinate().getY());
         while(true)
         {
-
             if(co.getY()==widthRaster-1 && co.getX()==xMax){
                 co.setY(0);
                 co.setX(xMin);
