@@ -4,20 +4,14 @@ public class Container {
 
     private int id;
     private int Lc;
-
     private int slotId;
-
     private int slotH;
-
-
 
     public Container(int id, int length, int slotId, int slotH) {
         this.id = id;
         this.Lc = length;
         this.slotId = slotId;
         this.slotH = slotH;
-
-
     }
 
     @Override
@@ -37,7 +31,6 @@ public class Container {
         return Lc;
     }
 
-
     public int getSlotId() { return slotId; }
 
     public void setSlotId(int slotId) {
@@ -54,7 +47,5 @@ public class Container {
     public void setSlotH(int slotH) {
         this.slotH = slotH;
     }
-
-
 
 }

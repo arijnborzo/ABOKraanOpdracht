@@ -12,11 +12,9 @@ import java.util.HashMap;
 
 public class FileparserEnd {
     ArrayList<int[]> assignments = new ArrayList<>();
-
     public void parseFile(String filename) throws IOException {
         String resourceName = filename;
         String is = new String(Files.readAllBytes(Paths.get(resourceName)));
-
 
         JSONTokener tokener = new JSONTokener(is);
         JSONObject object = new JSONObject(tokener);

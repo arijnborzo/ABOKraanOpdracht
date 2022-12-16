@@ -13,16 +13,12 @@ public class Logic
     ArrayList <int[]> EndPosition ;
     ArrayList <int[]> schedule;
     ArrayList <Movement> movements;
-
     HashMap<String,Integer> assignments ;
     int hMax ;
     int hTarget;
     int lenghtRaster;
     int widthRaster;
-
     int tijd = 0;
-
-
 
     public void readFile(boolean changeHeight) throws IOException {
 
@@ -33,8 +29,6 @@ public class Logic
             fileparser2.parseFile("src/main/input2einde.json");
             EndPosition = fileparser2.assignments;
         }
-
-
         slots = fileParser.slots;
         containers = fileParser.containers;
         assignments = fileParser.assignments;
@@ -74,9 +68,7 @@ public class Logic
             c.setId(sId);
             c.setSlotH(getSlotHeight(sId));
         }
-
         return naar;
-
     }
 
     public Movement move(Container c){

@@ -3,7 +3,6 @@ package org.example;
 import java.util.HashMap;
 
 public class Movement {
-
     private double startTime;
     private double endTime;
     private Coordinate startLocation;
@@ -15,7 +14,6 @@ public class Movement {
 
     private int vanSlotId;
     private int naarSlotId;
-
 
     private int id; //crane id
 

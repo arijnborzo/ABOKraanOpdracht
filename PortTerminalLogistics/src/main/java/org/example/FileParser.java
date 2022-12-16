@@ -15,18 +15,15 @@ public class FileParser {
 
     ArrayList<Slot> slots = new ArrayList<>();
     ArrayList<Cranes> cranes = new ArrayList<>();
-
     ArrayList <Container> containers = new ArrayList<>();
     HashMap<String,Integer> assignments = new HashMap<>();
     int hMax;
     int targetHeight;
-
     int length;
     int width;
     public void parseFile(String filename) throws IOException {
         String resourceName = filename;
         String is = new String(Files.readAllBytes(Paths.get(resourceName)));
-
 
         JSONTokener tokener = new JSONTokener(is);
         JSONObject object = new JSONObject(tokener);
@@ -34,10 +31,10 @@ public class FileParser {
         JSONArray jsoncontainers = object.getJSONArray("containers");
         JSONArray jsonassignments= object.getJSONArray("assignments");
         JSONArray jsoncranes= object.getJSONArray("cranes");
+
         hMax = object.getInt("maxheight");
         length = object.getInt("length");
         width = object.getInt("width");
-
 
         if(!object.isNull("targetheight")){
             targetHeight = object.getInt("targetheight");
@@ -81,8 +78,6 @@ public class FileParser {
                 position = slot_id+1 + "," + h;
                 assignments.put(position,(int)data.get("container_id"));
             }
-
         }
-
     }
 }
