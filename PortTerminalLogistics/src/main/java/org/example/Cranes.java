@@ -6,12 +6,14 @@ public class Cranes {
     private int yMin;
     private int yMax;
     private int xMin;
+    private Coordinate startPositie;
     private int xMax;
     private int xSpeed;
     private int ySpeed;
     public Cranes(int craneId, Coordinate positie, int yMin, int yMax, int xMin, int xMax, int xSpeed, int ySpeed) {
         this.craneId = craneId;
         this.positie = positie;
+        this.startPositie = positie;
         this.yMin = yMin;
         this.yMax = yMax;
         this.xMin = xMin;
@@ -48,5 +50,22 @@ public class Cranes {
     }
     public int getySpeed() {
         return ySpeed;
+    }
+    public int getxMax() {
+        return xMax;
+    }
+    public Coordinate getStartPositie() {
+        return startPositie;
+    }
+    public boolean canReachCoordinate(Coordinate coordinate){
+        return (coordinate.getX()>=xMin) && (coordinate.getX()<=xMax) && (coordinate.getY()>=yMin) && (coordinate.getY()<=yMax);
+    }
+    public int [] getOverlapArea(Cranes crane2){
+        int length = Math.abs(crane2.xMin - xMax);
+        int start = Math.min(crane2.xMax,xMin);
+        int eind = start +length;
+        return new int[]{start,eind};
+
+
     }
 }

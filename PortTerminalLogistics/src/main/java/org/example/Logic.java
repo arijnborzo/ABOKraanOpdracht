@@ -23,10 +23,10 @@ public class Logic
     public void readFile(boolean changeHeight) throws IOException {
 
         FileParser fileParser = new FileParser();
-        fileParser.parseFile("src/main/Terminal_10_10_3_1_100.json");
+        fileParser.parseFile("src/main/TerminalA_20_10_3_2_160.json");
         if(!changeHeight){
             FileparserEnd fileparser2 = new FileparserEnd();
-            fileparser2.parseFile("src/main/targetTerminal_10_10_3_1_100.json");
+            fileparser2.parseFile("src/main/targetTerminalA_20_10_3_2_160.json");
             EndPosition = fileparser2.assignments;
         }
         slots = fileParser.slots;
@@ -40,21 +40,54 @@ public class Logic
 
     }
 
-    public Movement move(Container c, int sId)
+    public ArrayList<Movement> move(Container c, int sId, int nextCraneId)
     {
-        // kijken als a kan opgepakt worden
-        Slot initSlotC = slots.get(c.getSlotId());
-        if(assignments.containsKey(c.getSlotId()+","+c.getSlotH()+1))
-        {
-            move(containers.get(assignments.get(c.getSlotId()+","+c.getSlotH()+1)),getFreeSpot(c,hMax));
-        }
-        if(getSlotHeight(sId)>=hMax)
-        {
-            move(containers.get(assignments.get(sId+","+getSlotHeight(sId))),getFreeSpot(c,hMax));
-        }
-        // verplaats container
-        Cranes crane = cranes.get(0);
+        Cranes[] cranesToUse = getPossibleCrane(slots.get(c.getSlotId()).getCoordinate(), slots.get(sId).getCoordinate());
+        ArrayList<Movement> movements1= new ArrayList<>();
 
+        if(cranesToUse[0] == cranesToUse[1]){
+            Slot initSlotC = slots.get(c.getSlotId());
+            if(assignments.containsKey(c.getSlotId()+","+c.getSlotH()+1))
+            {
+                move(containers.get(assignments.get(c.getSlotId()+","+c.getSlotH()+1)),getFreeSpot(c,hMax,cranesToUse[0].getxMin(),cranesToUse[0].getxMax()),-1);
+            }
+            if(getSlotHeight(sId)>=hMax)
+            {
+                move(containers.get(assignments.get(sId+","+getSlotHeight(sId))),getFreeSpot(c,hMax,cranesToUse[0].getxMin(),cranesToUse[0].getxMax()),-1);
+            }
+            movements1.add(moveContainerWithOneCrane(cranesToUse[0],c,sId));
+            if(cranesToUse[0].getCraneId() != nextCraneId){
+                Movement backToStartPosition = new Movement(cranesToUse[0].getCraneId(),-1,-1,-1,tijd,cranesToUse[0].getPositie(),slots.get(coordinateToSlotID(cranesToUse[0].getStartPositie())).getCoordinate(),cranesToUse[0].getxSpeed(),cranesToUse[0].getySpeed());
+                tijd+=backToStartPosition.getTravelTime();
+            }
+            return movements1;
+        }
+        else{
+            Slot initSlotC = slots.get(c.getSlotId());
+            if(assignments.containsKey(c.getSlotId()+","+c.getSlotH()+1))
+            {
+                move(containers.get(assignments.get(c.getSlotId()+","+c.getSlotH()+1)),getFreeSpot(c,hMax,cranesToUse[1].getxMin(),cranesToUse[1].getxMax()),-1);
+            }
+            if(getSlotHeight(sId)>=hMax)
+            {
+                move(containers.get(assignments.get(sId+","+getSlotHeight(sId))),getFreeSpot(c,hMax,cranesToUse[1].getxMin(),cranesToUse[1].getxMax()),-1);
+            }
+            int[]overlappingArea = cranesToUse[0].getOverlapArea(cranesToUse[1]);
+            int freeSpot = getFreeSpot(c,hMax,overlappingArea[0],overlappingArea[1]);
+
+            movements1.add(moveContainerWithOneCrane(cranesToUse[0],c,freeSpot));
+            Movement backToStartPosition = new Movement(cranesToUse[0].getCraneId(),-1,-1,-1,tijd,cranesToUse[0].getPositie(),slots.get(coordinateToSlotID(cranesToUse[0].getStartPositie())).getCoordinate(),cranesToUse[0].getxSpeed(),cranesToUse[0].getySpeed());
+            tijd+=backToStartPosition.getTravelTime();
+
+            movements1.add(moveContainerWithOneCrane(cranesToUse[1],c,sId));
+            backToStartPosition = new Movement(cranesToUse[1].getCraneId(),-1,-1,-1,tijd,cranesToUse[1].getPositie(),slots.get(coordinateToSlotID(cranesToUse[1].getStartPositie())).getCoordinate(),cranesToUse[1].getxSpeed(),cranesToUse[1].getySpeed());
+            tijd+=backToStartPosition.getTravelTime();
+
+            return movements1;
+        }
+
+    }
+    public Movement moveContainerWithOneCrane(Cranes crane,Container c, int sId ){
         Movement van = new Movement(crane.getCraneId(),-1,-1,-1,tijd,crane.getPositie(),slots.get(c.getSlotId()).getCoordinate(),crane.getxSpeed(),crane.getySpeed());
         tijd += van.getTravelTime();
         crane.setPositie(slots.get(c.getSlotId()).getCoordinate());
@@ -70,38 +103,61 @@ public class Logic
         }
         return naar;
     }
-
-    public Movement move(Container c){
-        int free = getFreeSpot(c,hTarget);
-        Cranes crane = cranes.get(0);
-
-        Movement van = new Movement(crane.getCraneId(),-1,-1,-1,tijd,crane.getPositie(),slots.get(c.getSlotId()).getCoordinate(),crane.getxSpeed(),crane.getySpeed());
-        tijd += van.getTravelTime();
-
-        crane.setPositie(slots.get(c.getSlotId()).getCoordinate());
-        Movement naar = new Movement(crane.getCraneId(),c.getId(),c.getSlotId(),free,tijd,crane.getPositie(),slots.get(free).getCoordinate(),crane.getxSpeed(),crane.getySpeed());
-        tijd += naar.getTravelTime();
-
-        crane.setPositie(slots.get(free).getCoordinate());
-        for(int i=0;i<c.getLc();i++){
-            assignments.put(free+i +","+getSlotHeight(free+i),c.getId());
-            assignments.remove(c.getSlotId()+i+ "," + c.getSlotH());
-
+    public Cranes[] getPossibleCrane(Coordinate start, Coordinate end){
+        Cranes [] usableCranes = new Cranes[2];
+        for(Cranes crane : cranes){
+            if(crane.canReachCoordinate(start) && usableCranes[0]==null){
+                usableCranes[0] = crane;
+            }
+            if(crane.canReachCoordinate(end) && usableCranes[1]==null){
+                usableCranes[1] = crane;
+            }
+            if( (usableCranes[0] != null) && (usableCranes[1] != null)){
+                continue;
+            }
         }
-        c.setSlotId(free);
-        c.setSlotH(getSlotHeight(free));
-        return naar;
+        return usableCranes;
+    }
+    public ArrayList<Movement> move(Container c){
+        int finalFreeSpot = getFreeSpot(c,hTarget,0,lenghtRaster);
+
+        Cranes[] cranesToUse = getPossibleCrane(slots.get(c.getSlotId()).getCoordinate(), slots.get(finalFreeSpot).getCoordinate());
+        ArrayList<Movement> movements1= new ArrayList<>();
+
+        if(cranesToUse[0] == cranesToUse[1]) {
+            Slot initSlotC = slots.get(c.getSlotId());
+            movements1.add(moveContainerWithOneCrane(cranesToUse[0],c,finalFreeSpot));
+            return movements1;
+        }
+        else{
+            Slot initSlotC = slots.get(c.getSlotId());
+
+            int[]overlappingArea = cranesToUse[0].getOverlapArea(cranesToUse[1]);
+            int intermediateFreeSpot = getFreeSpot(c,hMax,overlappingArea[0],overlappingArea[1]);
+            movements1.add(moveContainerWithOneCrane(cranesToUse[0],c,intermediateFreeSpot));
+            movements1.add(moveContainerWithOneCrane(cranesToUse[1],c,finalFreeSpot));
+
+            return movements1;
+        }
+
+
     }
     public void startOrdening(Boolean changeHeigt){
         movements = new ArrayList<>();
         if(!changeHeigt){
-            for (int[] scheduleItem: schedule){
-                movements.add(move(containers.get(scheduleItem[0]),scheduleItem[2]));
+            for(int i = 0; i<schedule.size();i++){
+                if(i == schedule.size()-1){
+                    movements.addAll(move(containers.get(schedule.get(i)[0]),schedule.get(i)[2],-1));
+                }
+                else{
+                    Cranes [] possibleCranes = getPossibleCrane(slots.get(schedule.get(i+1)[1]).getCoordinate(), slots.get(schedule.get(i+1)[2]).getCoordinate());
+                    movements.addAll(move(containers.get(schedule.get(i)[0]),schedule.get(i)[2],possibleCranes[0].getCraneId()));
+                }
             }
         }
         else{
             for (int[] scheduleItem: schedule){
-                movements.add(move(containers.get(scheduleItem[0])));
+                movements.addAll(move(containers.get(scheduleItem[0])));
             }
         }
     }
@@ -131,19 +187,19 @@ public class Logic
         Collections.reverse(schedule);
         return schedule;
     }
-    private int getFreeSpot(Container c, int hMax)
+    private int getFreeSpot(Container c, int hMax, int xMin, int xMax)
     {
         Coordinate co = new Coordinate(slots.get(c.getSlotId()).getCoordinate().getX(),slots.get(c.getSlotId()).getCoordinate().getY());
         while(true)
         {
 
-            if(co.getY()==widthRaster-1 && co.getX()==lenghtRaster-c.getLc()){
+            if(co.getY()==widthRaster-1 && co.getX()==xMax){
                 co.setY(0);
-                co.setX(0);
+                co.setX(xMin);
             }
-            else if(co.getX()==lenghtRaster-c.getLc()){
-                co.setX(0);
+            else if(co.getX()==xMax){
                 co.setY(co.getY()+1);
+                co.setX(xMin);
             }
             else{co.setX(co.getX()+1);}
             for (int h=1 ;h <= hMax ; h++ )
@@ -199,5 +255,11 @@ public class Logic
             i++;
         }
         return i;
+    }
+    public void PrintResult(){
+        System.out.println("%CraneId;ContainerId;PickupTime;EndTime;PickupPosX;PickupPosY;EndPosX;EndPosY;");
+        for(Movement move : movements){
+            System.out.println(move.getId() + ";" + move.getContainerId()+ ';'+ move.getStartTime()+ ";" + move.getEndTime() + ";" + move.getStartLocation().getX() + ";" + move.getStartLocation().getY()+ ";" + move.getEndLocation().getX() + ";" + move.getEndLocation().getY());
+        }
     }
 }

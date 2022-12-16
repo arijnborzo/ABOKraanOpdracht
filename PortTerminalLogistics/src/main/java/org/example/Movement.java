@@ -14,7 +14,6 @@ public class Movement {
 
     private int vanSlotId;
     private int naarSlotId;
-
     private int id; //crane id
 
     public Movement(int id,int containerId,int vanSlotId,int naarSlotId,int t, Coordinate p1 , Coordinate p2 , double vx , double vy)
@@ -61,4 +60,23 @@ public class Movement {
     public int getContainerId() {
         return containerId;
     }
+    public int getId() {
+        return id;
+    }
+    public double getStartTime() {
+        return startTime;
+    }
+
+    public double getEndTime() {
+        return endTime;
+    }
+
+    public Coordinate getStartLocation() {
+        return startLocation;
+    }
+
+    public Coordinate getEndLocation() {
+        return endLocation;
+    }
+
 }

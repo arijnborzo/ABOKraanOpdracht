@@ -35,7 +35,7 @@ public class Main {
         else{
             ArrayList <int[]> schedule = logic.GenerateSchedule();
         }
-
         logic.startOrdening(changeHeight);
+        logic.PrintResult();
     }
 }
