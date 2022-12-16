@@ -23,10 +23,10 @@ public class Logic
     public void readFile(boolean changeHeight) throws IOException {
 
         FileParser fileParser = new FileParser();
-        fileParser.parseFile("src/main/MH2Terminal_20_10_3_2_100.json");
+        fileParser.parseFile("src/main/Terminal_10_10_3_1_100.json");
         if(!changeHeight){
             FileparserEnd fileparser2 = new FileparserEnd();
-            fileparser2.parseFile("src/main/input2einde.json");
+            fileparser2.parseFile("src/main/targetTerminal_10_10_3_1_100.json");
             EndPosition = fileparser2.assignments;
         }
         slots = fileParser.slots;
@@ -166,7 +166,24 @@ public class Logic
 
     private boolean checkstackingConstrains(Coordinate co, Container c)
     {
-        return getSlotHeight(coordinateToSlotID(co))<hTarget;
+        int slotID = coordinateToSlotID(co);
+        int heightSlot = getSlotHeight(slotID);
+        int totalLength = 0;
+        int previousContainer = -1;
+
+        for(int i = 0; i<c.getLc(); i++){
+
+            if(assignments.get((slotID+i) + "," + (heightSlot-1)) == null){
+                return false;
+            }
+            int containerID = assignments.get((slotID+i) + "," + (heightSlot-1));
+
+            if(containerID != previousContainer){
+                totalLength = containers.get(containerID).getLc();
+                previousContainer = containerID;
+            }
+        }
+        return (getSlotHeight(coordinateToSlotID(co))<hTarget) && (c.getLc() == totalLength);
     }
 
     private int coordinateToSlotID(Coordinate co)
@@ -177,8 +194,8 @@ public class Logic
         return slots.get(slots.indexOf(new Slot(-1,co))).getId();
     }
     private int getSlotHeight(int slotId){
-        int i = 1;
-        while(assignments.containsKey(slotId+ "," +i)) {
+        int i = 0;
+        while(assignments.containsKey(slotId+ "," +(i+1))) {
             i++;
         }
         return i;

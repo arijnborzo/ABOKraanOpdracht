@@ -23,7 +23,7 @@ import java.util.Map;
 public class Main {
     public static void main(String[] args) throws IOException {
 
-        boolean changeHeight = true;
+        boolean changeHeight = false;
 
         Logic logic = new Logic();
         logic.readFile(changeHeight);
