@@ -11,11 +11,20 @@ public class Movement {
     private double xSpeed;
     private double ySpeed;
 
+    private int containerId;
+
+    private int vanSlotId;
+    private int naarSlotId;
+
+
     private int id; //crane id
 
-    public Movement(int id,int t, Coordinate p1 , Coordinate p2 , double vx , double vy)
+    public Movement(int id,int containerId,int vanSlotId,int naarSlotId,int t, Coordinate p1 , Coordinate p2 , double vx , double vy)
     {
-        id = this.id;
+        this.id = id;
+        this.containerId = containerId;
+        this.vanSlotId = vanSlotId;
+        this.naarSlotId = naarSlotId;
         startTime = t;
         startLocation = p1;
         endLocation = p2;
@@ -51,6 +60,7 @@ public class Movement {
         else
             return new int[]{maxmin, minmax};
     }
-
-
+    public int getContainerId() {
+        return containerId;
+    }
 }
