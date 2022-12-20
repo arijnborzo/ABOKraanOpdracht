@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Stack;
 
 public class Logic
 {
@@ -14,6 +15,8 @@ public class Logic
     ArrayList <int[]> schedule;
     ArrayList <Movement> movements;
     HashMap<String,Integer> assignments ;
+
+    Stack<int[]> listPlaceBack ;
     int hMax ;
     int hTarget;
     int lenghtRaster;
@@ -23,10 +26,10 @@ public class Logic
     public void readFile(boolean changeHeight) throws IOException {
 
         FileParser fileParser = new FileParser();
-        fileParser.parseFile("src/main/TerminalA_20_10_3_2_160.json");
+        fileParser.parseFile("src/main/TerminalB_20_10_3_2_160.json");
         if(!changeHeight){
             FileparserEnd fileparser2 = new FileparserEnd();
-            fileparser2.parseFile("src/main/targetTerminalA_20_10_3_2_160.json");
+            fileparser2.parseFile("src/main/targetTerminalB_20_10_3_2_160UPDATE.json");
             EndPosition = fileparser2.assignments;
         }
         slots = fileParser.slots;
@@ -37,6 +40,7 @@ public class Logic
         hTarget = fileParser.targetHeight;
         lenghtRaster = fileParser.length;
         widthRaster = fileParser.width;;
+        listPlaceBack = new Stack<>();
 
     }
 
@@ -49,11 +53,11 @@ public class Logic
             Slot initSlotC = slots.get(c.getSlotId());
             if(assignments.containsKey(c.getSlotId()+","+c.getSlotH()+1))
             {
-                move(containers.get(assignments.get(c.getSlotId()+","+c.getSlotH()+1)),getFreeSpot(c,hMax,cranesToUse[0].getxMin(),cranesToUse[0].getxMax()-c.getLc()),-1);
+                move(containers.get(assignments.get(c.getSlotId()+","+c.getSlotH()+1)),getFreeSpot(c,hMax,cranesToUse[0].getxMin(),cranesToUse[0].getxMax()-c.getLc()-1),-1);
             }
             if(getSlotHeight(sId)>=hMax)
             {
-                move(containers.get(assignments.get(sId+","+getSlotHeight(sId))),getFreeSpot(c,hMax,cranesToUse[0].getxMin(),cranesToUse[0].getxMax()-c.getLc()),-1);
+                move(containers.get(assignments.get(sId+","+getSlotHeight(sId))),getFreeSpot(c,hMax,cranesToUse[0].getxMin(),cranesToUse[0].getxMax()-c.getLc()-1),-1);
             }
             movements1.add(moveContainerWithOneCrane(cranesToUse[0],c,sId));
             if(cranesToUse[0].getCraneId() != nextCraneId){
@@ -66,14 +70,15 @@ public class Logic
             Slot initSlotC = slots.get(c.getSlotId());
             if(assignments.containsKey(c.getSlotId()+","+c.getSlotH()+1))
             {
-                move(containers.get(assignments.get(c.getSlotId()+","+c.getSlotH()+1)),getFreeSpot(c,hMax,cranesToUse[1].getxMin(),cranesToUse[1].getxMax()-c.getLc()),-1);
+                move(containers.get(assignments.get(c.getSlotId()+","+c.getSlotH()+1)),getFreeSpot(c,hMax,cranesToUse[1].getxMin(),cranesToUse[1].getxMax()-c.getLc()-1),-1);
             }
             if(getSlotHeight(sId)>=hMax)
             {
-                move(containers.get(assignments.get(sId+","+getSlotHeight(sId))),getFreeSpot(c,hMax,cranesToUse[1].getxMin(),cranesToUse[1].getxMax()-c.getLc()),-1);
+                move(containers.get(assignments.get(sId+","+getSlotHeight(sId))),getFreeSpot(c,hMax,cranesToUse[1].getxMin(),cranesToUse[1].getxMax()-c.getLc()-1),-1);
             }
             int[]overlappingArea = cranesToUse[0].getOverlapArea(cranesToUse[1]);
             int freeSpot = getFreeSpot(c,hMax,overlappingArea[0],overlappingArea[1]);
+            int oldSlotId = c.getSlotId();
 
             movements1.add(moveContainerWithOneCrane(cranesToUse[0],c,freeSpot));
             Movement backToStartPosition = new Movement(cranesToUse[0].getCraneId(),-1,-1,-1,tijd,cranesToUse[0].getPositie(),slots.get(coordinateToSlotID(cranesToUse[0].getStartPositie())).getCoordinate(),cranesToUse[0].getxSpeed(),cranesToUse[0].getySpeed());
@@ -82,6 +87,23 @@ public class Logic
             movements1.add(moveContainerWithOneCrane(cranesToUse[1],c,sId));
             backToStartPosition = new Movement(cranesToUse[1].getCraneId(),-1,-1,-1,tijd,cranesToUse[1].getPositie(),slots.get(coordinateToSlotID(cranesToUse[1].getStartPositie())).getCoordinate(),cranesToUse[1].getxSpeed(),cranesToUse[1].getySpeed());
             tijd+=backToStartPosition.getTravelTime();
+
+            // place container in que to be placed back if it is not the main movement (if is a needed intermediary step)
+            if(nextCraneId == -1)
+            {
+                listPlaceBack.add(new int[]{c.getId(),oldSlotId});
+            }
+            // place back everything from que if there are items. only if movement was main movement. id = -2
+            if(nextCraneId == -2)
+            {
+                while(!listPlaceBack.isEmpty())
+                {
+                    int[] mv = listPlaceBack.pop();
+                    move(containers.get(mv[0]),mv[1],-3); //id of -3 is reset interemediate movements
+                }
+
+
+            }
 
             return movements1;
         }
@@ -98,9 +120,9 @@ public class Logic
         for(int i=0;i<c.getLc();i++){
             assignments.put(sId+i +","+getSlotHeight(sId+i),c.getId());
             assignments.remove(c.getSlotId()+ "," + c.getSlotH());
-            c.setId(sId);
-            c.setSlotH(getSlotHeight(sId));
         }
+        c.setSlotId(sId);
+        c.setSlotH(getSlotHeight(sId));
         return naar;
     }
     public Cranes[] getPossibleCrane(Coordinate start, Coordinate end){
@@ -113,7 +135,7 @@ public class Logic
                 usableCranes[1] = crane;
             }
             if( (usableCranes[0] != null) && (usableCranes[1] != null)){
-                continue;
+                return usableCranes;
             }
         }
         return usableCranes;
@@ -147,7 +169,7 @@ public class Logic
         if(!changeHeigt){
             for(int i = 0; i<schedule.size();i++){
                 if(i == schedule.size()-1){
-                    movements.addAll(move(containers.get(schedule.get(i)[0]),schedule.get(i)[2],-1));
+                    movements.addAll(move(containers.get(schedule.get(i)[0]),schedule.get(i)[2],-2));
                 }
                 else{
                     Cranes [] possibleCranes = getPossibleCrane(slots.get(schedule.get(i+1)[1]).getCoordinate(), slots.get(schedule.get(i+1)[2]).getCoordinate());
@@ -192,11 +214,11 @@ public class Logic
         Coordinate co = new Coordinate(slots.get(c.getSlotId()).getCoordinate().getX(),slots.get(c.getSlotId()).getCoordinate().getY());
         while(true)
         {
-            if(co.getY()==widthRaster-1 && co.getX()==xMax){
+            if(co.getY()>=widthRaster-1 && co.getX()>=xMax){
                 co.setY(0);
                 co.setX(xMin);
             }
-            else if(co.getX()==xMax){
+            else if(co.getX()>=xMax){
                 co.setY(co.getY()+1);
                 co.setX(xMin);
             }
@@ -207,6 +229,8 @@ public class Logic
                 for(int l = 0 ; l< c.getLc(); l++)
                 {
                     Coordinate cc = new Coordinate(co.getX()+l,co.getY());
+                    if(cc.getX()==20)
+                    {System.out.println("peer");}
                     if(assignments.containsKey(coordinateToSlotID(cc)+","+h)) continue;
                     ok++;
                 }
