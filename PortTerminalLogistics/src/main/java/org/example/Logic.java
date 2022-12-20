@@ -26,10 +26,10 @@ public class Logic
     public void readFile(boolean changeHeight) throws IOException {
 
         FileParser fileParser = new FileParser();
-        fileParser.parseFile("src/main/TerminalB_20_10_3_2_160.json");
+        fileParser.parseFile("src/main/TerminalCT10_10_10_3_2_100.json");
         if(!changeHeight){
             FileparserEnd fileparser2 = new FileparserEnd();
-            fileparser2.parseFile("src/main/targetTerminalB_20_10_3_2_160UPDATE.json");
+            fileparser2.parseFile("src/main/targetTerminalCT10_10_10_3_2_100.json");
             EndPosition = fileparser2.assignments;
         }
         slots = fileParser.slots;
@@ -77,7 +77,7 @@ public class Logic
                 move(containers.get(assignments.get(sId+","+getSlotHeight(sId))),getFreeSpot(c,hMax,cranesToUse[1].getxMin(),cranesToUse[1].getxMax()-c.getLc()-1),-1);
             }
             int[]overlappingArea = cranesToUse[0].getOverlapArea(cranesToUse[1]);
-            int freeSpot = getFreeSpot(c,hMax,overlappingArea[0],overlappingArea[1]);
+            int freeSpot = getFreeSpot(c,5,overlappingArea[0],overlappingArea[1]);
             int oldSlotId = c.getSlotId();
 
             movements1.add(moveContainerWithOneCrane(cranesToUse[0],c,freeSpot));
@@ -128,14 +128,17 @@ public class Logic
     public Cranes[] getPossibleCrane(Coordinate start, Coordinate end){
         Cranes [] usableCranes = new Cranes[2];
         for(Cranes crane : cranes){
+            if(crane.canReachCoordinate(start) && crane.canReachCoordinate(end))
+            {
+                usableCranes[0] = crane;
+                usableCranes[1] = crane;
+                return usableCranes;
+            }
             if(crane.canReachCoordinate(start) && usableCranes[0]==null){
                 usableCranes[0] = crane;
             }
             if(crane.canReachCoordinate(end) && usableCranes[1]==null){
                 usableCranes[1] = crane;
-            }
-            if( (usableCranes[0] != null) && (usableCranes[1] != null)){
-                return usableCranes;
             }
         }
         return usableCranes;
@@ -229,8 +232,6 @@ public class Logic
                 for(int l = 0 ; l< c.getLc(); l++)
                 {
                     Coordinate cc = new Coordinate(co.getX()+l,co.getY());
-                    if(cc.getX()==20)
-                    {System.out.println("peer");}
                     if(assignments.containsKey(coordinateToSlotID(cc)+","+h)) continue;
                     ok++;
                 }
@@ -267,9 +268,7 @@ public class Logic
 
     private int coordinateToSlotID(Coordinate co)
     {
-        if(slots.indexOf(new Slot(-1,co))==-1){
-            System.out.println("int 123412");
-    }
+        if(slots.indexOf(new Slot(-1,co)) == -1) return -1;
         return slots.get(slots.indexOf(new Slot(-1,co))).getId();
     }
     private int getSlotHeight(int slotId){

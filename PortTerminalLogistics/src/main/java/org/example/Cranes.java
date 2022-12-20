@@ -61,8 +61,20 @@ public class Cranes {
         return (coordinate.getX()>=xMin) && (coordinate.getX()<=xMax) && (coordinate.getY()>=yMin) && (coordinate.getY()<=yMax);
     }
     public int [] getOverlapArea(Cranes crane2){
-        int length = Math.abs(crane2.xMin - xMax);
-        int start = Math.min(crane2.xMax,xMin);
+        Cranes left ;
+        Cranes right;
+        if(xMax < crane2.xMax)
+        {
+            left = this;
+            right = crane2;
+        }
+        else
+        {
+            left = crane2;
+            right = this;
+        }
+        int length = Math.abs(right.xMin - left.xMax);
+        int start = Math.min(right.xMin,left.xMax);
         int eind = start +length;
         return new int[]{start,eind};
 
